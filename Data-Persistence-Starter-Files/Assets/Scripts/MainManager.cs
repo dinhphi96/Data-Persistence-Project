@@ -10,22 +10,27 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
-    public GameObject GameOverText;
-    
+    public Text ScoreText, BestCoreText;
+    public string Name;
+    public GameObject GameOverText,Button1;
+
     private bool m_Started = false;
-    private int m_Points;
-    
+    private int m_Points, BestCore;
+
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
+        if (MenuManager.Instance.NameBestCoreMenu == "")
+            Name = MenuManager.Instance.NameSaveMenu;
+        else Name = MenuManager.Instance.NameBestCoreMenu;
+        BestCore = MenuManager.Instance.BestcoreSaveMenu;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        int[] pointCountArray = new[] { 1, 1, 2, 2, 5, 5 };
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -36,6 +41,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        BestCoreText.text = $"Best Score: {Name}: {BestCore}";
     }
 
     private void Update()
@@ -66,11 +72,30 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        if (m_Points > BestCore)
+        {
+            BestCore = m_Points;
+            MenuManager.Instance.BestcoreSaveMenu = BestCore;
+            MenuManager.Instance.NameBestCoreMenu = MenuManager.Instance.NameSaveMenu;
+            Name = MenuManager.Instance.NameBestCoreMenu;
+            MenuManager.Instance.SaveCore();
+
+        }
+
+
+        BestCoreText.text = $"Best Score: {Name}: {BestCore}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        Button1.SetActive(true);
+    }
+
+    public void ExitMenu()
+    {
+        SceneManager.LoadScene(0);
+        
     }
 }
